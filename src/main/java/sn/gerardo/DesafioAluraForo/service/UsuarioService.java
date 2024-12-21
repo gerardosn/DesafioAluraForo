@@ -25,6 +25,7 @@ public class UsuarioService {
 
     public List<UsuarioDTO> obtenerTodos() {
         return repository.findAll().stream()
+                .filter(Usuario::isActivo) // Filtro para incluir solo usuarios activos
                 .map(this::mappearADTO)
                 .collect(Collectors.toList());
     }
