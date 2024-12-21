@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import org.springframework.web.server.ResponseStatusException;
@@ -52,15 +53,22 @@ public class UsuarioService {
         usuario.setCorreoElectronico(usuarioDTO.correoElectronico());
         usuario.setContrasena(usuarioDTO.contrasena());
         usuario.setPerfil(new Perfil(usuarioDTO.perfilId()));
+        usuario.setActivo(usuarioDTO.activo()); // Establecer el valor de activo
         return mappearADTO(repository.save(usuario));
     }
 
-    public void eliminarLogico(Long id) {
+
+public String eliminarLogico(Long id) {
+    try {
         Usuario usuario = repository.findById(id)
                 .orElseThrow();
         usuario.setActivo(false);
         repository.save(usuario);
+        return "Usuario ocultado con éxito";
+    } catch (Exception e) {
+        return "Ocurrió un error al ocultar el usuario: " + e.getMessage();
     }
+}
 
     private Usuario mappearAEntidad(UsuarioDTO usuarioDTO) {
         Usuario usuario = new Usuario();
@@ -77,7 +85,8 @@ public class UsuarioService {
                 usuario.getNombre(),
                 usuario.getCorreoElectronico(),
                 usuario.getContrasena(),
-                usuario.getPerfil().getId()
+                usuario.getPerfil().getId(),
+                usuario.isActivo()
         );
     }
 }

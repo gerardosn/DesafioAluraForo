@@ -12,5 +12,6 @@ public record UsuarioDTO(
         String correoElectronico,
         @NotBlank(message = "La contraseña es requerida")
         String contrasena,
-        Long perfilId
+        Long perfilId,
+        Boolean activo
         ) {}
