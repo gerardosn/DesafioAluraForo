@@ -1,0 +1,3 @@
+DB_URL=jdbc:mysql://host:3306/bd?useSSL=false&serverTimezone=UTC
+DB_USERNAME=usu
+DB_PASSWORD=pass
