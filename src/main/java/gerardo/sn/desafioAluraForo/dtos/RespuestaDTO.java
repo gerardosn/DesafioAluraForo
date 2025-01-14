@@ -1,21 +1,28 @@
 package gerardo.sn.desafioAluraForo.dtos;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.*;
 import java.time.LocalDateTime;
 
 public class RespuestaDTO {
 
     private Long id;
 
-    @NotBlank
+
+    @NotBlank(message = "El mensaje no puede estar vacío")
+    @Size(min = 10, max = 1000, message = "El mensaje debe tener entre 10 y 1000 caracteres")
     private String mensaje;
 
+    @NotNull(message = "El ID del tópico no puede ser nulo")
     private Long topicoId;
 
+    @PastOrPresent(message = "La fecha de creación debe ser en el pasado o presente")
     private LocalDateTime fechaCreacion;
 
+    @NotNull(message = "El ID del autor no puede ser nulo")
     private Long autorId;
 
+    @NotNull(message = "El campo de solución no puede ser nulo")
     private Boolean solucion;
 
     // Getters and Setters
