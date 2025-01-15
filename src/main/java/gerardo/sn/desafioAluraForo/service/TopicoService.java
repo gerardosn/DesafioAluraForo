@@ -4,6 +4,7 @@ import gerardo.sn.desafioAluraForo.dtos.TopicoDTO;
 import gerardo.sn.desafioAluraForo.entity.Curso;
 import gerardo.sn.desafioAluraForo.entity.Topico;
 import gerardo.sn.desafioAluraForo.entity.Usuario;
+import gerardo.sn.desafioAluraForo.exception.DuplicateException;
 import gerardo.sn.desafioAluraForo.exception.NotFoundException;
 import gerardo.sn.desafioAluraForo.repository.CursoRepository;
 import gerardo.sn.desafioAluraForo.repository.TopicoRepository;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,6 +41,10 @@ public class TopicoService {
     }
 
     public TopicoDTO createTopico(TopicoDTO topicoDTO) {
+        Optional<Topico> topicoExistente = topicoRepository.findByTituloAndMensaje(topicoDTO.getTitulo(), topicoDTO.getMensaje());
+        if (topicoExistente.isPresent()) {
+            throw new DuplicateException("Un topico con el mismo título y mensaje ya existe.");
+        }
         Topico topico = new Topico();
         topico.setTitulo(topicoDTO.getTitulo());
         topico.setMensaje(topicoDTO.getMensaje());

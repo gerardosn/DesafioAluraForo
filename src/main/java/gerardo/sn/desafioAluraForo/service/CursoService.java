@@ -2,12 +2,14 @@ package gerardo.sn.desafioAluraForo.service;
 
 import gerardo.sn.desafioAluraForo.dtos.CursoDTO;
 import gerardo.sn.desafioAluraForo.entity.Curso;
+import gerardo.sn.desafioAluraForo.exception.DuplicateException;
 import gerardo.sn.desafioAluraForo.exception.NotFoundException;
 import gerardo.sn.desafioAluraForo.repository.CursoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,6 +31,10 @@ public class CursoService {
     }
 
     public CursoDTO createCurso(CursoDTO cursoDTO) {
+        Optional<Curso> cursoExistente = cursoRepository.findByNombre(cursoDTO.getNombre());
+        if (cursoExistente.isPresent()) {
+            throw new DuplicateException("Un topico con el mismo título y mensaje ya existe.");
+        }
         Curso curso = new Curso();
         curso.setNombre(cursoDTO.getNombre());
         curso.setCategoria(cursoDTO.getCategoria());

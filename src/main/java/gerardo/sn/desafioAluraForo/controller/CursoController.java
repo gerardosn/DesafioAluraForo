@@ -4,6 +4,7 @@ package gerardo.sn.desafioAluraForo.controller;
 
 import gerardo.sn.desafioAluraForo.dtos.CursoDTO;
 import gerardo.sn.desafioAluraForo.service.CursoService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,7 +30,7 @@ public class CursoController {
     }
 
     @PostMapping
-    public ResponseEntity<CursoDTO> createCurso(@RequestBody CursoDTO cursoDTO) {
+    public ResponseEntity<CursoDTO> createCurso(@Valid @RequestBody CursoDTO cursoDTO) {
         return new ResponseEntity<>(cursoService.createCurso(cursoDTO), HttpStatus.CREATED);
     }
 
