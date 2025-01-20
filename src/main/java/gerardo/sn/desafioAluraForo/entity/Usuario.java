@@ -1,24 +1,21 @@
 package gerardo.sn.desafioAluraForo.entity;
 
 import jakarta.persistence.*;
-//import javax.persistence.Entity;
-//import javax.persistence.Table;
-//import javax.persistence.Column;
-//import javax.persistence.GeneratedValue;
-//import javax.persistence.GenerationType;
-//import javax.persistence.Id;
-//import javax.persistence.JoinColumn;
-//import javax.persistence.ManyToOne;
-
 import jakarta.validation.constraints.*;
-//import javax.validation.constraints.Email;
-//import javax.validation.constraints.NotBlank;
-//import javax.validation.constraints.NotNull;
-//import javax.validation.constraints.Size;
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.Collection;
+import java.util.List;
 
 @Entity
 @Table(name = "usuario")
-public class Usuario {
+@Getter
+@Setter
+public class Usuario implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -31,11 +28,11 @@ public class Usuario {
     @NotBlank(message = "El correo electrónico es requerido")
     @Email(message = "El correo electrónico no es válido")
     @Size(max = 100, message = "El correo electrónico no puede superar los 100 caracteres")
-    @Column(name = "correo_electronico")
+    @Column(name = "correo_electronico", unique = true)
     private String correoElectronico;
 
     @NotBlank(message = "La contraseña es requerida")
-    @Size(min = 8, max = 20, message = "La contraseña debe tener entre 8 y 20 caracteres")
+    @Size(min = 8, max = 100, message = "La contraseña debe tener entre 8 y 100 caracteres")
     @Column(name = "contrasena")
     private String contrasena;
 
@@ -44,54 +41,92 @@ public class Usuario {
     @JoinColumn(name = "perfil_id")
     private Perfil perfil;
 
-    // Constructor, getters y setters
-    public Usuario() {}
+    private boolean activo = true;
 
-    public Usuario(Long id, String nombre, String correoElectronico, String contrasena, Perfil perfil) {
-        this.id = id;
-        this.nombre = nombre;
-        this.correoElectronico = correoElectronico;
-        this.contrasena = contrasena;
-        this.perfil = perfil;
+    // Implementación de UserDetails
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority("ROLE_" + perfil.getNombre().toUpperCase()));
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-
-    public String getCorreoElectronico() {
-        return correoElectronico;
-    }
-
-    public void setCorreoElectronico(String correoElectronico) {
-        this.correoElectronico = correoElectronico;
-    }
-
-    public String getContrasena() {
+    @Override
+    public String getPassword() {
         return contrasena;
     }
 
-    public void setContrasena(String contrasena) {
-        this.contrasena = contrasena;
+    @Override
+    public String getUsername() {
+        return correoElectronico;
     }
 
-    public Perfil getPerfil() {
-        return perfil;
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
     }
 
-    public void setPerfil(Perfil perfil) {
-        this.perfil = perfil;
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
     }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return activo;
+    }
+
+    // Constructor, getters y setters
+//    public Usuario() {}
+//
+//    public Usuario(Long id, String nombre, String correoElectronico, String contrasena, Perfil perfil) {
+//        this.id = id;
+//        this.nombre = nombre;
+//        this.correoElectronico = correoElectronico;
+//        this.contrasena = contrasena;
+//        this.perfil = perfil;
+//    }
+//
+//    public Long getId() {
+//        return id;
+//    }
+//
+//    public void setId(Long id) {
+//        this.id = id;
+//    }
+//
+//    public String getNombre() {
+//        return nombre;
+//    }
+//
+//    public void setNombre(String nombre) {
+//        this.nombre = nombre;
+//    }
+//
+//    public String getCorreoElectronico() {
+//        return correoElectronico;
+//    }
+//
+//    public void setCorreoElectronico(String correoElectronico) {
+//        this.correoElectronico = correoElectronico;
+//    }
+//
+//    public String getContrasena() {
+//        return contrasena;
+//    }
+//
+//    public void setContrasena(String contrasena) {
+//        this.contrasena = contrasena;
+//    }
+//
+//    public Perfil getPerfil() {
+//        return perfil;
+//    }
+//
+//    public void setPerfil(Perfil perfil) {
+//        this.perfil = perfil;
+//    }
 }

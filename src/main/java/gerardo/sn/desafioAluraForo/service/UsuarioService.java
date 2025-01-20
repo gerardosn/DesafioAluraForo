@@ -4,19 +4,29 @@ import gerardo.sn.desafioAluraForo.dtos.PerfilDto;
 import gerardo.sn.desafioAluraForo.dtos.UsuarioDto;
 import gerardo.sn.desafioAluraForo.entity.Perfil;
 import gerardo.sn.desafioAluraForo.entity.Usuario;
-import gerardo.sn.desafioAluraForo.exception.NotFoundException;
 import gerardo.sn.desafioAluraForo.repository.UsuarioRepository;
 import gerardo.sn.desafioAluraForo.repository.PerfilRepository;
+
+import gerardo.sn.desafioAluraForo.exception.NotFoundException;
+import gerardo.sn.desafioAluraForo.exception.SecurityException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class UsuarioService {
+
     private final UsuarioRepository usuarioRepository;
     private final PerfilRepository perfilRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
     public UsuarioService(UsuarioRepository usuarioRepository, PerfilRepository perfilRepository) {
@@ -47,21 +57,34 @@ public class UsuarioService {
         );
     }
 
+    @Transactional
     public UsuarioDto createUsuario(UsuarioDto usuarioDto) {
+        // Validar si el correo ya existe
+        if (usuarioRepository.existsByCorreoElectronico(usuarioDto.getCorreoElectronico())) {
+            throw new SecurityException("El correo electrónico ya está registrado");
+        }
+
+        // Obtener el perfil
         Perfil perfil = perfilRepository.findById(usuarioDto.getPerfil().getId())
                 .orElseThrow(() -> new NotFoundException("Perfil no encontrado"));
 
+        // Crear y configurar el usuario
         Usuario usuario = new Usuario();
         usuario.setNombre(usuarioDto.getNombre());
         usuario.setCorreoElectronico(usuarioDto.getCorreoElectronico());
-        usuario.setContrasena(usuarioDto.getContrasena());
+        usuario.setContrasena(passwordEncoder.encode(usuarioDto.getContrasena()));
         usuario.setPerfil(perfil);
+        usuario.setActivo(true);
+
+        // Guardar el usuario
         Usuario usuarioGuardado = usuarioRepository.save(usuario);
+
+        // Convertir a DTO para la respuesta (sin incluir la contraseña)
         return new UsuarioDto(
                 usuarioGuardado.getId(),
                 usuarioGuardado.getNombre(),
                 usuarioGuardado.getCorreoElectronico(),
-                usuarioGuardado.getContrasena(),
+                null, // No devolvemos la contraseña en la respuesta
                 new PerfilDto(usuarioGuardado.getPerfil().getId(), usuarioGuardado.getPerfil().getNombre())
         );
     }
