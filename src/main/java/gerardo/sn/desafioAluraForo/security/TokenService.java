@@ -36,7 +36,7 @@ public class TokenService {
                     .withClaim("id", usuario.getId())
                     .withClaim("nombre", usuario.getNombre())
                     .withClaim("perfil", usuario.getPerfil().getNombre())
-                    .withExpiresAt(generarFechaExpiracion(expiration))
+                    .withExpiresAt(generarFechaExpiracion())
                     .sign(algorithm);
         } catch (JWTCreationException exception) {
             throw new SecurityException("Error al generar token JWT");

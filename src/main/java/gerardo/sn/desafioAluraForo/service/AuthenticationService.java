@@ -54,7 +54,7 @@ public class AuthenticationService {
             throw new SecurityException("El email ya está registrado");
         }
 
-        // Buscar el perfil ALUMNO en la base de datos
+        // Buscar el perfil  en la base de datos
         Perfil perfil = perfilRepository.findByNombre("ADMIN, PROFESOR, ALUMNO")
                 .orElseThrow(() -> new SecurityException("Error al asignar el perfil de ALUMNO"));
 

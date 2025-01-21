@@ -93,11 +93,19 @@ public class UsuarioService {
         Perfil perfil = perfilRepository.findById(usuarioDto.getPerfil().getId())
                 .orElseThrow(() -> new NotFoundException("Perfil no encontrado"));
 
-        Usuario usuario = usuarioRepository.findById(id).orElseThrow(() -> new NotFoundException("Usuario no encontrado"));
+        Usuario usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Usuario no encontrado"));
+
         usuario.setNombre(usuarioDto.getNombre());
         usuario.setCorreoElectronico(usuarioDto.getCorreoElectronico());
-        usuario.setContrasena(usuarioDto.getContrasena());
         usuario.setPerfil(perfil);
+
+        //usuario.setContrasena(usuarioDto.getContrasena());
+        // Si la contraseña no es nula, actualizarla
+        if (usuarioDto.getContrasena() != null) {
+            usuario.setContrasena(passwordEncoder.encode(usuarioDto.getContrasena()));
+        }
+
         Usuario usuarioActualizado = usuarioRepository.save(usuario);
         return new UsuarioDto(
                 usuarioActualizado.getId(),
