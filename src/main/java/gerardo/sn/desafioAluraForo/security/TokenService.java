@@ -24,6 +24,9 @@ public class TokenService {
     @Value("${api.security.expiration:7200000}")
     private long expiration;
 
+    @Value("${api.security.refresh-expiration:7200000}")
+    private long refreshExpiration;
+
     public String generarToken(Usuario usuario) {
         try {
             Algorithm algorithm = Algorithm.HMAC256(apiSecret);
@@ -59,6 +62,41 @@ public class TokenService {
     private Instant generarFechaExpiracion() {
         return LocalDateTime.now()
                 .plusHours(2)
+                .toInstant(ZoneOffset.of("-05:00"));
+    }
+
+    public String generarRefreshToken(Usuario usuario) {
+        try {
+            Algorithm algorithm = Algorithm.HMAC256(apiSecret);
+            return JWT.create()
+                    .withIssuer(issuer)
+                    .withSubject(usuario.getCorreoElectronico())
+                    .withExpiresAt(generarFechaExpiracionRefresh())
+                    .sign(algorithm);
+        } catch (JWTCreationException exception) {
+            throw new SecurityException("Error al generar refresh token");
+        }
+    }
+
+    public String validarRefreshToken(String token) {
+        if (token == null) {
+            throw new SecurityException("Refresh token no proporcionado");
+        }
+        try {
+            Algorithm algorithm = Algorithm.HMAC256(apiSecret);
+            return JWT.require(algorithm)
+                    .withIssuer(issuer)
+                    .build()
+                    .verify(token)
+                    .getSubject();
+        } catch (JWTVerificationException exception) {
+            throw new SecurityException("Refresh token inválido o expirado");
+        }
+    }
+
+    private Instant generarFechaExpiracionRefresh() {
+        return LocalDateTime.now()
+                .plusDays(7)
                 .toInstant(ZoneOffset.of("-05:00"));
     }
 }

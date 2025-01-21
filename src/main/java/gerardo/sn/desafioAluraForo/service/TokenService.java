@@ -14,12 +14,17 @@ import java.time.ZoneOffset;
 
 @Service
 public class TokenService {
-
     @Value("${api.security.secret}")
     private String apiSecret;
 
     @Value("${api.security.issuer}")
     private String issuer;
+
+    @Value("${api.security.expiration}")
+    private long expiration;
+
+    @Value("${api.security.refresh-expiration}")
+    private long refreshExpiration;
 
     public String generarToken(Usuario usuario) {
         try {
@@ -57,4 +62,5 @@ public class TokenService {
                 .plusHours(2)
                 .toInstant(ZoneOffset.of("-05:00"));
     }
+
 }

@@ -3,9 +3,10 @@ package gerardo.sn.desafioAluraForo.service;
 import gerardo.sn.desafioAluraForo.dtos.SecurityDtos.LoginRequestDTO;
 import gerardo.sn.desafioAluraForo.dtos.SecurityDtos.LoginResponseDTO;
 import gerardo.sn.desafioAluraForo.dtos.SecurityDtos.RegistroUsuarioDTO;
-import gerardo.sn.desafioAluraForo.entity.RolUsuario;
+import gerardo.sn.desafioAluraForo.entity.Perfil;
 import gerardo.sn.desafioAluraForo.entity.Usuario;
 import gerardo.sn.desafioAluraForo.exception.SecurityException;
+import gerardo.sn.desafioAluraForo.repository.PerfilRepository;
 import gerardo.sn.desafioAluraForo.repository.UsuarioRepository;
 import gerardo.sn.desafioAluraForo.security.TokenService;
 import jakarta.validation.Valid;
@@ -27,6 +28,7 @@ public class AuthenticationService {
     private final TokenService tokenService;
     private final PasswordEncoder passwordEncoder;
     private final UsuarioRepository usuarioRepository;
+    private final PerfilRepository perfilRepository;
 
     /**
      * Autentica un usuario y genera tokens de acceso
@@ -48,15 +50,20 @@ public class AuthenticationService {
      */
     @Transactional
     public LoginResponseDTO registrar(@Valid RegistroUsuarioDTO request) {
-        if (usuarioRepository.existsByEmail(request.getEmail())) {
+        if (usuarioRepository.existsByCorreoElectronico(request.getEmail())) {
             throw new SecurityException("El email ya está registrado");
         }
 
+        // Buscar el perfil ALUMNO en la base de datos
+        Perfil perfil = perfilRepository.findByNombre("ADMIN, PROFESOR, ALUMNO")
+                .orElseThrow(() -> new SecurityException("Error al asignar el perfil de ALUMNO"));
+
+
         Usuario usuario = new Usuario();
         usuario.setNombre(request.getNombre());
-        usuario.setEmail(request.getEmail());
-        usuario.setPassword(passwordEncoder.encode(request.getPassword()));
-        usuario.setRol(RolUsuario.USER);
+        usuario.setCorreoElectronico(request.getEmail());
+        usuario.setContrasena(passwordEncoder.encode(request.getPassword()));
+        usuario.setPerfil(perfil);
         usuario.setActivo(true);
 
         usuarioRepository.save(usuario);
@@ -72,7 +79,7 @@ public class AuthenticationService {
      */
     public LoginResponseDTO refreshToken(String refreshToken) {
         String email = tokenService.validarRefreshToken(refreshToken);
-        Usuario usuario = usuarioRepository.findByEmail(email)
+        Usuario usuario = usuarioRepository.findByCorreoElectronico(email)
                 .orElseThrow(() -> new SecurityException("Usuario no encontrado"));
 
         String newToken = tokenService.generarToken(usuario);
