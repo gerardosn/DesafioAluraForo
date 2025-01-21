@@ -8,7 +8,7 @@ import gerardo.sn.desafioAluraForo.entity.Usuario;
 import gerardo.sn.desafioAluraForo.exception.SecurityException;
 import gerardo.sn.desafioAluraForo.repository.PerfilRepository;
 import gerardo.sn.desafioAluraForo.repository.UsuarioRepository;
-import gerardo.sn.desafioAluraForo.security.TokenService;
+import gerardo.sn.desafioAluraForo.security.SecurityTokenService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -25,7 +25,7 @@ import org.springframework.validation.annotation.Validated;
 public class AuthenticationService {
 
     private final AuthenticationManager authenticationManager;
-    private final TokenService tokenService;
+    private final SecurityTokenService tokenService;
     private final PasswordEncoder passwordEncoder;
     private final UsuarioRepository usuarioRepository;
     private final PerfilRepository perfilRepository;
