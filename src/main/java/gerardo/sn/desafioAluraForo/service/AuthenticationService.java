@@ -8,7 +8,7 @@ import gerardo.sn.desafioAluraForo.entity.Usuario;
 import gerardo.sn.desafioAluraForo.exception.SecurityException;
 import gerardo.sn.desafioAluraForo.repository.PerfilRepository;
 import gerardo.sn.desafioAluraForo.repository.UsuarioRepository;
-import gerardo.sn.desafioAluraForo.security.SecurityTokenService;
+import gerardo.sn.desafioAluraForo.security.TokenService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -25,7 +25,7 @@ import org.springframework.validation.annotation.Validated;
 public class AuthenticationService {
 
     private final AuthenticationManager authenticationManager;
-    private final SecurityTokenService securityTokenService;
+    private final TokenService tokenService;
     private final PasswordEncoder passwordEncoder;
     private final UsuarioRepository usuarioRepository;
     private final PerfilRepository perfilRepository;
@@ -39,8 +39,8 @@ public class AuthenticationService {
         );
 
         Usuario usuario = (Usuario) authentication.getPrincipal();
-        String token = securityTokenService.generarToken(usuario);
-        String refreshToken = securityTokenService.generarRefreshToken(usuario);
+        String token = tokenService.generarToken(usuario);
+        String refreshToken = tokenService.generarRefreshToken(usuario);
 
         return new LoginResponseDTO(token, refreshToken, "Bearer");
     }
@@ -68,8 +68,8 @@ public class AuthenticationService {
 
         usuarioRepository.save(usuario);
 
-        String token = securityTokenService.generarToken(usuario);
-        String refreshToken = securityTokenService.generarRefreshToken(usuario);
+        String token = tokenService.generarToken(usuario);
+        String refreshToken = tokenService.generarRefreshToken(usuario);
 
         return new LoginResponseDTO(token, refreshToken, "Bearer");
     }
@@ -78,12 +78,12 @@ public class AuthenticationService {
      * Refresca el token de acceso usando un refresh token
      */
     public LoginResponseDTO refreshToken(String refreshToken) {
-        String email = securityTokenService.validarRefreshToken(refreshToken);
+        String email = tokenService.validarRefreshToken(refreshToken);
         Usuario usuario = usuarioRepository.findByCorreoElectronico(email)
                 .orElseThrow(() -> new SecurityException("Usuario no encontrado"));
 
-        String newToken = securityTokenService.generarToken(usuario);
-        String newRefreshToken = securityTokenService.generarRefreshToken(usuario);
+        String newToken = tokenService.generarToken(usuario);
+        String newRefreshToken = tokenService.generarRefreshToken(usuario);
 
         return new LoginResponseDTO(newToken, newRefreshToken, "Bearer");
     }

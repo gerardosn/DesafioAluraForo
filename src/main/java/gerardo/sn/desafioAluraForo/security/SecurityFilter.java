@@ -16,11 +16,11 @@ import java.io.IOException;
 @Component
 public class SecurityFilter extends OncePerRequestFilter {
 
-    private final SecurityTokenService securityTokenService;
+    private final TokenService tokenService;
     private final UsuarioRepository usuarioRepository;
 
-    public SecurityFilter(SecurityTokenService securityTokenService, UsuarioRepository usuarioRepository) {
-        this.securityTokenService = securityTokenService;
+    public SecurityFilter(TokenService tokenService, UsuarioRepository usuarioRepository) {
+        this.tokenService = tokenService;
         this.usuarioRepository = usuarioRepository;
     }
 
@@ -30,7 +30,7 @@ public class SecurityFilter extends OncePerRequestFilter {
         String token = recuperarToken(request);
 
         if (token != null) {
-            String correoElectronico = securityTokenService.getSubject(token);
+            String correoElectronico = tokenService.getSubject(token);
             Usuario usuario = usuarioRepository.findActiveByCorreoElectronico(correoElectronico)
                     .orElseThrow(() -> new ServletException("Usuario no encontrado o inactivo"));
 
