@@ -15,7 +15,7 @@ import java.time.ZoneOffset;
 @Service
 public class TokenService {
 
-    @Value("${api.security.secret}")
+    @Value("${api.security.secret:123gerardo}")
     private String apiSecret;
 
     @Value("${api.security.issuer:Alura Foro API}")
